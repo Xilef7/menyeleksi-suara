@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using UnityEngine;
 
 public class GameReporter : MonoBehaviour
@@ -117,6 +118,8 @@ public class GameReporter : MonoBehaviour
 
     private GameManager gameManager;
 
+    private ColorStreamOne[] stream;
+
     private float[] sumHitResponseTime;
     private float[] sumPrematureResponseTime;
     private float[] sumCommissionResponseTime;
@@ -155,6 +158,8 @@ public class GameReporter : MonoBehaviour
 
     void OnGameStarted(ReadOnlyCollection<ColorStreamOne> stream)
     {
+        this.stream = new ColorStreamOne[stream.Count];
+        stream.CopyTo(this.stream, 0);
         sumHitResponseTime = new float[totalLevel];
         sumPrematureResponseTime = new float[totalLevel];
         sumCommissionResponseTime = new float[totalLevel];
@@ -218,19 +223,9 @@ public class GameReporter : MonoBehaviour
 
     void OnGameEnded()
     {
-        float[] avgHitResponseTime = new float[totalLevel];
-        float[] avgPrematureResponseTime = new float[totalLevel];
-        float[] avgCommissionResponseTime = new float[totalLevel];
-        for (int i = 0; i < totalLevel; i++)
-        {
-            avgHitResponseTime[i] = sumHitResponseTime[i] / countHit[i];
-            avgPrematureResponseTime[i] = sumPrematureResponseTime[i] / countPremature[i];
-            avgCommissionResponseTime[i] = sumCommissionResponseTime[i] / countCommission[i];
-        }
-
         if (shouldRecord)
         {
-            // TODO: Report
+            Report();
         }
 
         StartCoroutine(WaitThenShowScoreCalculation());
@@ -240,5 +235,79 @@ public class GameReporter : MonoBehaviour
     {
         yield return new WaitForSeconds(waitDuration);
         ScoreCalculated(new Score(countHit, countPremature, countCommission, countOmission));
+    }
+
+    void Report()
+    {
+        using (StreamWriter writer = new StreamWriter("report.txt", true, System.Text.Encoding.Unicode))
+        {
+            writer.WriteLine("********************************************************************");
+
+            writer.WriteLine(System.DateTime.Now.ToString("F", new System.Globalization.CultureInfo("id-ID")));
+            writer.WriteLine();
+
+            writer.WriteLine("Response Count:");
+            for (int i = 0; i < totalLevel; i++)
+            {
+                writer.WriteLine(
+                    "Level {0}: [ Hit: {1,-3:D} Premature: {2,-3:D} Commission: {3,-3:D} Omission: {4,-3:D} ]",
+                    i + 1,
+                    countHit[i],
+                    countPremature[i],
+                    countCommission[i],
+                    countOmission[i]);
+            }
+            writer.WriteLine();
+
+            writer.WriteLine("Response Time:");
+            for (int i = 0; i < totalLevel; i++)
+            {
+                writer.WriteLine(
+                    "Level {0}: [ Hit: {1,-7:G5}s Premature: {2,-7:G5}s Commission: {3,-7:G5}s ]",
+                    i + 1,
+                    sumHitResponseTime[i] / countHit[i],
+                    sumPrematureResponseTime[i] / countPremature[i],
+                    sumCommissionResponseTime[i] / countCommission[i]);
+            }
+            writer.WriteLine();
+
+            writer.Write("S: ");
+            foreach (var color in stream)
+            {
+                writer.Write("{0} ", color == ColorStreamOne.Black ? 'B' : 'R');
+            }
+            writer.WriteLine();
+
+            writer.Write("H: ");
+            WriteResponse(writer, Accuracy.Hit);
+            writer.Write("P: ");
+            WriteResponse(writer, Accuracy.Premature);
+            writer.Write("C: ");
+            WriteResponse(writer, Accuracy.Commission);
+            writer.Write("O: ");
+            WriteResponse(writer, Accuracy.Omission);
+
+            writer.WriteLine("********************************************************************");
+            writer.WriteLine();
+        }
+    }
+
+    void WriteResponse(StreamWriter writer, Accuracy accuracy)
+    {
+        int i = 0;
+        foreach (var responseDatum in responseData)
+        {
+            if (responseDatum.Accuracy == accuracy)
+            {
+                for (; i < responseDatum.StimulusIndex; i++)
+                {
+                    writer.Write("  ");
+                }
+                writer.Write(responseDatum.ResponseCount);
+                writer.Write(' ');
+                i++;
+            }
+        }
+        writer.WriteLine();
     }
 }
