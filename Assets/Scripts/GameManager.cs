@@ -117,7 +117,7 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-        string[] separatingChars = {"\r\n"};
+        string[] separatingChars = { "\r\n" };
         string[] streamTexts = streamsTextAsset.text.Split(separatingChars, StringSplitOptions.RemoveEmptyEntries);
 
         streams = new ColorStreamOne[streamTexts.Length][];
@@ -136,7 +136,7 @@ public class GameManager : MonoBehaviour
     {
         // Initialization
         usedStreamIndex = UnityEngine.Random.Range(0, streams.Length);
-        currentLevel = 0;
+        currentLevel = 1;
         currentStimulusIndex = 0;
         currentState = State.None;
         isPrevStimulusResponded = false;
@@ -156,24 +156,8 @@ public class GameManager : MonoBehaviour
         }
 
         // Gameplay
+        InvokeRepeating("PlayStreamOne", 0, wordDuration + pauseDuration[currentLevel - 1]);
         InvokeRepeating("PlayStreamTwo", 0, wordDuration);
-        for (int i = 0; i < pauseDuration.Length; i++)
-        {
-            InvokeRepeating("PlayStreamOne", 0, wordDuration + pauseDuration[i]);
-
-            yield return new WaitForSeconds(levelDuration);
-
-            CancelInvoke("PlayStreamOne");
-            currentLevel++;
-        }
-        CancelInvoke("PlayStreamTwo");
-
-        // End game
-        gameStarted = false;
-        if (GameEnded != null)
-        {
-            GameEnded();
-        }
     }
 
     void Update()
@@ -227,11 +211,27 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        if (currentStimulusIndex >= GetStartingIndex(currentLevel + 1))
+        {
+            currentLevel++;
+            if (currentLevel > TotalLevel)
+            {
+                EndGame();
+            }
+            else
+            {
+                CancelInvoke("PlayStreamOne");
+                InvokeRepeating("PlayStreamOne", 0, wordDuration + pauseDuration[currentLevel - 1]);
+            }
+            return;
+        }
+
+        float nextWordTime = now + wordDuration + pauseDuration[currentLevel - 1];
         if (streams[usedStreamIndex][currentStimulusIndex] == ColorStreamOne.Red) // If current stimulus red
         {
             if (currentState == State.Black)
             {
-                hitRange = new Range<float>(now, now + wordDuration + pauseDuration[currentLevel]);
+                hitRange = new Range<float>(now, nextWordTime);
 
                 currentState = State.RedTarget;
             }
@@ -244,7 +244,7 @@ public class GameManager : MonoBehaviour
         }
         else // If current stimulus black
         {
-            prematureRange = new Range<float>(now + wordDuration + pauseDuration[currentLevel] - offsetDuration, now + wordDuration + pauseDuration[currentLevel]);
+            prematureRange = new Range<float>(nextWordTime - offsetDuration, nextWordTime);
 
             currentState = State.Black;
 
@@ -261,5 +261,24 @@ public class GameManager : MonoBehaviour
     void PlayStreamTwo()
     {
         audioStreamTwo.PlayOneShot(distractionAudioClips[UnityEngine.Random.Range(0, distractionAudioClips.Length)]);
+    }
+
+    void EndGame()
+    {
+        CancelInvoke("PlayStreamOne");
+        CancelInvoke("PlayStreamTwo");
+
+        // End game
+        gameStarted = false;
+        if (GameEnded != null)
+        {
+            GameEnded();
+        }
+    }
+
+    int GetStartingIndex(int level)
+    {
+        int previousLevel = level - 1;
+        return previousLevel > 0 ? GetStartingIndex(previousLevel) + (int)Math.Ceiling(levelDuration / (wordDuration + pauseDuration[previousLevel - 1])) : 0;
     }
 }

@@ -167,11 +167,11 @@ public class GameReporter : MonoBehaviour
 
     void OnHit(ResponseInfo responseInfo)
     {
-        int currentLevel = responseInfo.CurrentLevel;
+        int i = responseInfo.CurrentLevel - 1;
         if (!responseInfo.HasRespondedBefore)
         {
-            sumHitResponseTime[currentLevel] += responseInfo.ResponseTime;
-            countHit[currentLevel]++;
+            sumHitResponseTime[i] += responseInfo.ResponseTime;
+            countHit[i]++;
             responseData.AddLast(new ResponseDatum(responseInfo.RespondedStimulusIndex, Accuracy.Hit));
         }
         else
@@ -182,27 +182,26 @@ public class GameReporter : MonoBehaviour
 
     void OnPremature(ResponseInfo responseInfo)
     {
-        int currentLevel = responseInfo.CurrentLevel;
+        int i = responseInfo.CurrentLevel - 1;
         if (!responseInfo.HasRespondedBefore)
         {
-            sumPrematureResponseTime[currentLevel] += responseInfo.ResponseTime;
-            countPremature[currentLevel]++;
+            sumPrematureResponseTime[i] += responseInfo.ResponseTime;
+            countPremature[i]++;
             responseData.AddLast(new ResponseDatum(responseInfo.RespondedStimulusIndex, Accuracy.Premature));
         }
         else
         {
             responseData.Last.Value.ResponseCount++;
         }
-
     }
 
     void OnCommission(ResponseInfo responseInfo)
     {
-        int currentLevel = responseInfo.CurrentLevel;
+        int i = responseInfo.CurrentLevel - 1;
         if (!responseInfo.HasRespondedBefore)
         {
-            sumCommissionResponseTime[currentLevel] += responseInfo.ResponseTime;
-            countCommission[currentLevel]++;
+            sumCommissionResponseTime[i] += responseInfo.ResponseTime;
+            countCommission[i]++;
             responseData.AddLast(new ResponseDatum(responseInfo.RespondedStimulusIndex, Accuracy.Premature));
         }
         else
@@ -213,7 +212,7 @@ public class GameReporter : MonoBehaviour
 
     void OnOmission(int currentLevel, int lastStimulusIndex)
     {
-        countOmission[currentLevel]++;
+        countOmission[currentLevel - 1]++;
         responseData.AddLast(new ResponseDatum(lastStimulusIndex, Accuracy.Omission));
     }
 
