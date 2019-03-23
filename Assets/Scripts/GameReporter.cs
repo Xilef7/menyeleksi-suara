@@ -202,7 +202,7 @@ public class GameReporter : MonoBehaviour
         {
             sumCommissionResponseTime[i] += responseInfo.ResponseTime;
             countCommission[i]++;
-            responseData.AddLast(new ResponseDatum(responseInfo.RespondedStimulusIndex, Accuracy.Premature));
+            responseData.AddLast(new ResponseDatum(responseInfo.RespondedStimulusIndex, Accuracy.Commission));
         }
         else
         {
