@@ -39,7 +39,7 @@ public class EndGameUI : MonoBehaviour
         for (int i = 0; i < score.LevelScores.Length; i++)
         {
             GameObject scoreRowInstance = Instantiate(scoreRow, scoreCalculationTransform);
-            scoreRowInstance.GetComponent<ScoreRowUI>().Initialize(i, score.LevelScores[i]);
+            scoreRowInstance.GetComponent<ScoreRowUI>().Initialize(i + 1, score.LevelScores[i]);
             scoreRowInstance.transform.SetSiblingIndex(i + 1);
         }
 
