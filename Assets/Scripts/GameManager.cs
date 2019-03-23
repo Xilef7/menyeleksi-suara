@@ -209,6 +209,8 @@ public class GameManager : MonoBehaviour
             {
                 Omission(currentLevel, currentStimulusIndex - 1);
             }
+            
+            isPrevStimulusResponded = true;
         }
 
         if (currentStimulusIndex >= GetStartingIndex(currentLevel + 1))
