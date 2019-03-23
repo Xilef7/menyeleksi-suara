@@ -113,28 +113,18 @@ public class GameManager : MonoBehaviour
     private Range<float> hitRange = new Range<float>(0, 0);
     private Range<float> prematureRange = new Range<float>(0, 0);
     private float lastStimulusTime = 0;
-    private bool gameStarted = false;
+    private bool isPlaying = false;
 
     void Awake()
     {
-        string[] separatingChars = { "\r\n" };
-        string[] streamTexts = streamsTextAsset.text.Split(separatingChars, StringSplitOptions.RemoveEmptyEntries);
-
-        streams = new ColorStreamOne[streamTexts.Length][];
-        for (int i = 0; i < streams.Length; i++)
-        {
-            streams[i] = streamTexts[i].Split(null).Select(s => s.Equals("0") ? ColorStreamOne.Black : ColorStreamOne.Red).ToArray();
-        }
-    }
-
-    void Start()
-    {
-        StartCoroutine(Play());
-    }
-
-    IEnumerator Play()
-    {
-        // Initialization
+        streams = streamsTextAsset.text
+            .Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(line => line
+                .Split(null)
+                .Select(s => s
+                    .Equals("0") ? ColorStreamOne.Black : ColorStreamOne.Red)
+                .ToArray())
+            .ToArray();
         usedStreamIndex = UnityEngine.Random.Range(0, streams.Length);
         currentLevel = 1;
         currentStimulusIndex = 0;
@@ -143,13 +133,18 @@ public class GameManager : MonoBehaviour
         hitRange = new Range<float>(0, 0);
         prematureRange = new Range<float>(0, 0);
         lastStimulusTime = 0;
-        gameStarted = false;
+        isPlaying = false;
+    }
 
-        // Wait some seconds before starting game
-        yield return new WaitForSeconds(waitDuration);
+    void Start()
+    {
+        Invoke("Play", waitDuration);
+    }
 
+    void Play()
+    {
         // Start game
-        gameStarted = true;
+        isPlaying = true;
         if (GameStarted != null)
         {
             GameStarted(Array.AsReadOnly(streams[usedStreamIndex]));
@@ -165,7 +160,7 @@ public class GameManager : MonoBehaviour
         // Cache current time
         float now = Time.time;
 
-        if (Input.GetKeyDown(KeyCode.Space) && gameStarted)
+        if (Input.GetKeyDown(KeyCode.Space) && isPlaying)
         {
             float responseTime = now - lastStimulusTime;
             int lastStimulusIndex = currentStimulusIndex - 1;
@@ -213,7 +208,7 @@ public class GameManager : MonoBehaviour
             isPrevStimulusResponded = true;
         }
 
-        if (currentStimulusIndex >= GetStartingIndex(currentLevel + 1))
+        if (currentStimulusIndex >= GetStartingIndex(currentLevel + 1)) // If game should move to the next level
         {
             currentLevel++;
             if (currentLevel > TotalLevel)
@@ -222,6 +217,7 @@ public class GameManager : MonoBehaviour
             }
             else
             {
+                // Restart PlayStreamOne invocation with a new repeat rate
                 CancelInvoke("PlayStreamOne");
                 InvokeRepeating("PlayStreamOne", 0, wordDuration + pauseDuration[currentLevel - 1]);
             }
@@ -271,7 +267,7 @@ public class GameManager : MonoBehaviour
         CancelInvoke("PlayStreamTwo");
 
         // End game
-        gameStarted = false;
+        isPlaying = false;
         if (GameEnded != null)
         {
             GameEnded();
