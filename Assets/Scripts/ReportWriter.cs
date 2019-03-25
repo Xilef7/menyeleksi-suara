@@ -163,11 +163,11 @@ public class ReportWriter
             for (int level = 1; level <= responseStatistic.TotalLevel; level++)
             {
                 writer.WriteLine(
-                    "Level {0}: [ Hit: {1,-7:G5}s Premature: {2,-7:G5}s Commission: {3,-7:G5}s ]",
+                    "Level {0}: [ Hit: {1,-5:G4} ms Premature: {2,-5:G4} ms Commission: {3,-5:G4} ms ]",
                     level,
-                    responseStatistic.GetAverageHitResponseTime(level),
-                    responseStatistic.GetAveragePrematureResponseTime(level),
-                    responseStatistic.GetAverageCommissionResponseTime(level));
+                    responseStatistic.GetHitCount(level) > 0 ? responseStatistic.GetAverageHitResponseTime(level) * 1000 : 0,
+                    responseStatistic.GetPrematureCount(level) > 0 ? responseStatistic.GetAveragePrematureResponseTime(level) * 1000 : 0,
+                    responseStatistic.GetCommissionCount(level) > 0 ? responseStatistic.GetAverageCommissionResponseTime(level) * 1000 : 0);
             }
             writer.WriteLine();
 
