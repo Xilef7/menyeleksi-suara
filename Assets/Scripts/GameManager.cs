@@ -191,6 +191,11 @@ public class GameManager : MonoBehaviour
 
             isPrevStimulusResponded = true;
         }
+        
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene("Menu");
+        }
     }
 
     void PlayStreamOne()
@@ -204,7 +209,7 @@ public class GameManager : MonoBehaviour
             {
                 Omission(currentLevel, currentStimulusIndex - 1);
             }
-            
+
             isPrevStimulusResponded = true;
         }
 
