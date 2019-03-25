@@ -93,13 +93,19 @@ public class GameReporter : MonoBehaviour
     [SerializeField] private bool shouldRecord = false;
     [SerializeField] private float waitDuration = 1;
 
+    private int TotalLevel {
+        get {
+            return startingIndexes.Length;
+        }
+    }
+
     private GameManager gameManager;
 
     private ReportWriter reportWriter;
     private LinkedList<ResponseOfStimulus> responseOfStimuli;
     private ResponseStatistic responseStatistic;
 
-    private int totalLevel;
+    private int[] startingIndexes;
 
     void Start()
     {
@@ -111,7 +117,11 @@ public class GameReporter : MonoBehaviour
         gameManager.Omission += OnOmission;
         gameManager.GameEnded += OnGameEnded;
 
-        totalLevel = gameManager.TotalLevel;
+        startingIndexes = new int[gameManager.TotalLevel];
+        for (int i = 0; i < startingIndexes.Length; i++)
+        {
+            startingIndexes[i] = gameManager.GetStartingIndex(i + 1);
+        }
     }
 
     void OnDestroy()
@@ -127,8 +137,8 @@ public class GameReporter : MonoBehaviour
     void OnGameStarted(ReadOnlyCollection<ColorStreamOne> stream)
     {
         responseOfStimuli = new LinkedList<ResponseOfStimulus>();
-        responseStatistic = new ResponseStatistic(totalLevel);
-        reportWriter = new ReportWriter(stream, responseOfStimuli, responseStatistic);
+        responseStatistic = new ResponseStatistic(TotalLevel);
+        reportWriter = new ReportWriter(stream, responseOfStimuli, responseStatistic, startingIndexes);
     }
 
     void OnHit(ResponseInfo responseInfo)
@@ -190,12 +200,12 @@ public class GameReporter : MonoBehaviour
     {
         yield return new WaitForSeconds(waitDuration);
 
-        int[] countHit = new int[totalLevel];
-        int[] countPremature = new int[totalLevel];
-        int[] countCommission = new int[totalLevel];
-        int[] countOmission = new int[totalLevel];
+        int[] countHit = new int[TotalLevel];
+        int[] countPremature = new int[TotalLevel];
+        int[] countCommission = new int[TotalLevel];
+        int[] countOmission = new int[TotalLevel];
 
-        for (int i = 0; i < totalLevel; i++)
+        for (int i = 0; i < TotalLevel; i++)
         {
             int level = i + 1;
             countHit[i] = responseStatistic.GetHitCount(level);

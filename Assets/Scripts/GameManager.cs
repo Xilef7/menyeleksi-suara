@@ -279,7 +279,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    int GetStartingIndex(int level)
+    public int GetStartingIndex(int level)
     {
         int previousLevel = level - 1;
         return previousLevel > 0 ? GetStartingIndex(previousLevel) + (int)Math.Ceiling(levelDuration / (wordDuration + pauseDuration[previousLevel - 1])) : 0;

@@ -121,16 +121,34 @@ public class ResponseOfStimulus
 
 public class ReportWriter
 {
+    private struct ResponseString
+    {
+        public readonly string Hit;
+        public readonly string Premature;
+        public readonly string Commission;
+        public readonly string Omission;
+
+        public ResponseString(string hit, string premature, string commission, string omission)
+        {
+            Hit = hit;
+            Premature = premature;
+            Commission = commission;
+            Omission = omission;
+        }
+    }
+
     private ColorStreamOne[] stream;
     private IEnumerable<ResponseOfStimulus> responseOfStimuli;
     private ResponseStatistic responseStatistic;
+    private int[] startingIndexes;
 
-    public ReportWriter(ReadOnlyCollection<ColorStreamOne> stream, IEnumerable<ResponseOfStimulus> responseOfStimuli, ResponseStatistic responseStatistic)
+    public ReportWriter(ReadOnlyCollection<ColorStreamOne> stream, IEnumerable<ResponseOfStimulus> responseOfStimuli, ResponseStatistic responseStatistic, int[] startingIndexes)
     {
         this.stream = new ColorStreamOne[stream.Count];
         stream.CopyTo(this.stream, 0);
         this.responseOfStimuli = responseOfStimuli;
         this.responseStatistic = responseStatistic;
+        this.startingIndexes = startingIndexes;
     }
 
     public void WriteReport(string fileName, int width)
@@ -173,19 +191,16 @@ public class ReportWriter
 
             // Write response on stimulus
             var stream = BuildStreamString('B', 'R');
-            var hitResponse = BuildResponseString(Accuracy.Hit);
-            var prematureResponse = BuildResponseString(Accuracy.Premature);
-            var commissionResponse = BuildResponseString(Accuracy.Commission);
-            var omissionResponse = BuildResponseString(Accuracy.Omission);
+            var response = BuildResponseString();
 
             int partLength = width - 2;
             for (int i = 0; i < stream.Length; i += width)
             {
                 writer.WriteLine("S: {0}", stream.Substring(i, System.Math.Min(partLength, stream.Length - i)));
-                writer.WriteLine("H: {0}", i < hitResponse.Length ? hitResponse.Substring(i, System.Math.Min(partLength, hitResponse.Length - i)) : "");
-                writer.WriteLine("P: {0}", i < prematureResponse.Length ? prematureResponse.Substring(i, System.Math.Min(partLength, prematureResponse.Length - i)) : "");
-                writer.WriteLine("C: {0}", i < commissionResponse.Length ? commissionResponse.Substring(i, System.Math.Min(partLength, commissionResponse.Length - i)) : "");
-                writer.WriteLine("O: {0}", i < omissionResponse.Length ? omissionResponse.Substring(i, System.Math.Min(partLength, omissionResponse.Length - i)) : "");
+                writer.WriteLine("H: {0}", i < response.Hit.Length ? response.Hit.Substring(i, System.Math.Min(partLength, response.Hit.Length - i)) : "");
+                writer.WriteLine("P: {0}", i < response.Premature.Length ? response.Premature.Substring(i, System.Math.Min(partLength, response.Premature.Length - i)) : "");
+                writer.WriteLine("C: {0}", i < response.Commission.Length ? response.Commission.Substring(i, System.Math.Min(partLength, response.Commission.Length - i)) : "");
+                writer.WriteLine("O: {0}", i < response.Omission.Length ? response.Omission.Substring(i, System.Math.Min(partLength, response.Omission.Length - i)) : "");
                 writer.WriteLine();
             }
 
@@ -205,23 +220,38 @@ public class ReportWriter
         return sb.ToString();
     }
 
-    private string BuildResponseString(Accuracy accuracy)
+    private ResponseString BuildResponseString()
     {
-        var sb = new StringBuilder();
-        int i = 0;
+        var stringBuilders = new Dictionary<Accuracy, StringBuilder>();
+        stringBuilders.Add(Accuracy.Hit, new StringBuilder());
+        stringBuilders.Add(Accuracy.Premature, new StringBuilder());
+        stringBuilders.Add(Accuracy.Commission, new StringBuilder());
+        stringBuilders.Add(Accuracy.Omission, new StringBuilder());
+
+        int currentStimulusIndex = -1;
         foreach (var responseOfStimulus in responseOfStimuli)
         {
-            if (responseOfStimulus.Accuracy == accuracy)
+            foreach (KeyValuePair<Accuracy, StringBuilder> entry in stringBuilders)
             {
-                while (i < responseOfStimulus.StimulusIndex)
+                if (entry.Key == responseOfStimulus.Accuracy)
                 {
-                    sb.Append(new string(' ', 2));
-                    i++;
+                    entry.Value.AppendFormat(
+                        "{0}{1} ",
+                        new string(' ', (responseOfStimulus.StimulusIndex - currentStimulusIndex - 1) * 2),
+                        responseOfStimulus.ResponseCount);
                 }
-                sb.AppendFormat("{0} ", responseOfStimulus.ResponseCount);
-                i++;
+                else
+                {
+                    entry.Value.Append(new string(' ', (responseOfStimulus.StimulusIndex - currentStimulusIndex) * 2));
+                }
             }
+            currentStimulusIndex = responseOfStimulus.StimulusIndex;
         }
-        return sb.ToString();
+
+        return new ResponseString(
+            stringBuilders[Accuracy.Hit].ToString(),
+            stringBuilders[Accuracy.Premature].ToString(),
+            stringBuilders[Accuracy.Commission].ToString(),
+            stringBuilders[Accuracy.Omission].ToString());
     }
 }
