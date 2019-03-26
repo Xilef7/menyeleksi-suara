@@ -302,7 +302,7 @@ public class ReportWriter
                 if (entry.Key == responseOfStimulus.Accuracy)
                 {
                     entry.Value.AppendFormat(
-                        "{0}{1} ",
+                        "{0}{1,-2}",
                         new string(' ', (responseOfStimulus.StimulusIndex - currentStimulusIndex - 1) * 2),
                         responseOfStimulus.ResponseCount);
                 }
