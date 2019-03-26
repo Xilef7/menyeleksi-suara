@@ -190,24 +190,90 @@ public class ReportWriter
             writer.WriteLine();
 
             // Write response on stimulus
-            var stream = BuildStreamString('B', 'R');
-            var response = BuildResponseString();
+            var totalLevel = startingIndexes.Length;
+            var stringStartingIndexes = new int[totalLevel];
+            for (int i = 0; i < stringStartingIndexes.Length; i++)
+            {
+                stringStartingIndexes[i] = startingIndexes[i] * 2;
+            }
+
+            var streamPerLevel = SplitStreamPerLevel(BuildStreamString('B', 'R'), stringStartingIndexes);
+            var responsePerLevel = SplitResponsePerLevel(BuildResponseString(), stringStartingIndexes);
 
             int partLength = width - 2;
-            for (int i = 0; i < stream.Length; i += width)
+            for (int level = 1; level <= totalLevel; level++)
             {
-                writer.WriteLine("S: {0}", stream.Substring(i, System.Math.Min(partLength, stream.Length - i)));
-                writer.WriteLine("H: {0}", i < response.Hit.Length ? response.Hit.Substring(i, System.Math.Min(partLength, response.Hit.Length - i)) : "");
-                writer.WriteLine("P: {0}", i < response.Premature.Length ? response.Premature.Substring(i, System.Math.Min(partLength, response.Premature.Length - i)) : "");
-                writer.WriteLine("C: {0}", i < response.Commission.Length ? response.Commission.Substring(i, System.Math.Min(partLength, response.Commission.Length - i)) : "");
-                writer.WriteLine("O: {0}", i < response.Omission.Length ? response.Omission.Substring(i, System.Math.Min(partLength, response.Omission.Length - i)) : "");
-                writer.WriteLine();
+                writer.WriteLine("Level {0}", level);
+
+                var levelStream = streamPerLevel[level - 1];
+                var levelResponse = responsePerLevel[level - 1];
+                
+                for (int i = 0; i < levelStream.Length; i += width)
+                {
+                    writer.WriteLine("S: {0}", levelStream.Substring(i, System.Math.Min(partLength, levelStream.Length - i)));
+                    writer.WriteLine("H: {0}", i < levelResponse.Hit.Length ? levelResponse.Hit.Substring(i, System.Math.Min(partLength, levelResponse.Hit.Length - i)) : "");
+                    writer.WriteLine("P: {0}", i < levelResponse.Premature.Length ? levelResponse.Premature.Substring(i, System.Math.Min(partLength, levelResponse.Premature.Length - i)) : "");
+                    writer.WriteLine("C: {0}", i < levelResponse.Commission.Length ? levelResponse.Commission.Substring(i, System.Math.Min(partLength, levelResponse.Commission.Length - i)) : "");
+                    writer.WriteLine("O: {0}", i < levelResponse.Omission.Length ? levelResponse.Omission.Substring(i, System.Math.Min(partLength, levelResponse.Omission.Length - i)) : "");
+                    writer.WriteLine();
+                }
             }
 
             // Write separator
             writer.WriteLine(new string('*', width));
             writer.WriteLine();
         }
+    }
+
+    private string[] SplitStreamPerLevel(string stream, int[] startingIndexes)
+    {
+        var lastIndex = startingIndexes.Length - 1;
+        var streamPerLevel = new string[startingIndexes.Length];
+
+        for (int i = 0; i < lastIndex; i++)
+        {
+            int startingIndex = startingIndexes[i];
+            int length = startingIndexes[i + 1] - startingIndex;
+
+            streamPerLevel[i] = stream.Substring(startingIndex, length);
+        }
+
+        streamPerLevel[lastIndex] = stream.Substring(startingIndexes[lastIndex]);
+
+        return streamPerLevel;
+    }
+
+    private ResponseString[] SplitResponsePerLevel(ResponseString response, int[] startingIndexes)
+    {
+        var lastIndex = startingIndexes.Length - 1;
+        var responsePerLevel = new ResponseString[startingIndexes.Length];
+
+        for (int i = 0; i < lastIndex; i++)
+        {
+            int startingIndex = startingIndexes[i];
+            int length = startingIndexes[i + 1] - startingIndex;
+
+            var hit = response.Hit;
+            var premature = response.Premature;
+            var commission = response.Commission;
+            var omission = response.Omission;
+
+            responsePerLevel[i] = new ResponseString(
+                    startingIndex < hit.Length ? hit.Substring(startingIndex, System.Math.Min(length, hit.Length - startingIndex)) : "",
+                    startingIndex < premature.Length ? premature.Substring(startingIndex, System.Math.Min(length, premature.Length - startingIndex)) : "",
+                    startingIndex < commission.Length ? commission.Substring(startingIndex, System.Math.Min(length, commission.Length - startingIndex)) : "",
+                    startingIndex < omission.Length ? omission.Substring(startingIndex, System.Math.Min(length, omission.Length - startingIndex)) : ""
+                );
+        }
+
+        responsePerLevel[lastIndex] = new ResponseString(
+                startingIndexes[lastIndex] < response.Hit.Length ? response.Hit.Substring(startingIndexes[lastIndex]) : "",
+                startingIndexes[lastIndex] < response.Premature.Length ? response.Premature.Substring(startingIndexes[lastIndex]) : "",
+                startingIndexes[lastIndex] < response.Commission.Length ? response.Commission.Substring(startingIndexes[lastIndex]) : "",
+                startingIndexes[lastIndex] < response.Omission.Length ? response.Omission.Substring(startingIndexes[lastIndex]) : ""
+            );
+
+        return responsePerLevel;
     }
 
     private string BuildStreamString(char black, char red)
