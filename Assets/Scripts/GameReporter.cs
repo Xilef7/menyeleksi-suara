@@ -190,7 +190,8 @@ public class GameReporter : MonoBehaviour
     {
         if (shouldRecord)
         {
-            reportWriter.WriteReport("report.txt", 68);
+            reportWriter.WriteStreamReport("stream report.txt", 68);
+            reportWriter.WriteTotalCountReport("total count report.txt");
         }
 
         StartCoroutine(WaitThenShowScoreCalculation());

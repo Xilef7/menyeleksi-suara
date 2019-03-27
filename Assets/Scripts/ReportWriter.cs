@@ -151,7 +151,7 @@ public class ReportWriter
         this.startingIndexes = startingIndexes;
     }
 
-    public void WriteReport(string fileName, int width)
+    public void WriteStreamReport(string fileName, int width)
     {
         using (StreamWriter writer = new StreamWriter(fileName, true, Encoding.Unicode))
         {
@@ -221,6 +221,34 @@ public class ReportWriter
 
             // Write separator
             writer.WriteLine(new string('*', width));
+            writer.WriteLine();
+        }
+    }
+
+    public void WriteTotalCountReport(string fileName)
+    {
+        using (StreamWriter writer = new StreamWriter(fileName, true))
+        {
+            writer.WriteLine("# {0}", System.DateTime.Now.ToString("F", new System.Globalization.CultureInfo("id-ID")));
+
+            var totalHit = 0;
+            var totalPremature = 0;
+            var totalCommission = 0;
+            var totalOmission = 0;
+
+            for (int level = 1; level <= responseStatistic.TotalLevel; level++)
+            {
+                totalHit += responseStatistic.GetHitCount(level);
+                totalPremature += responseStatistic.GetPrematureCount(level);
+                totalCommission += responseStatistic.GetCommissionCount(level);
+                totalOmission += responseStatistic.GetOmissionCount(level);
+            }
+
+            writer.WriteLine("Hit {0}", totalHit);
+            writer.WriteLine("Premature {0}", totalPremature);
+            writer.WriteLine("Commission {0}", totalCommission);
+            writer.WriteLine("Omission {0}", totalOmission);
+            
             writer.WriteLine();
         }
     }
