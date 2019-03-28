@@ -5,7 +5,6 @@ public class ScoreRowUI : MonoBehaviour
 {
     [SerializeField] private Text levelText = null;
     [SerializeField] private Text hitCountText = null;
-    [SerializeField] private Text prematureCountText = null;
     [SerializeField] private Text commissionCountText = null;
     [SerializeField] private Text omissionCountText = null;
 
@@ -13,16 +12,14 @@ public class ScoreRowUI : MonoBehaviour
     {
         levelText.text = level.ToString();
         hitCountText.text = levelScore.CountHit.ToString();
-        prematureCountText.text = levelScore.CountPremature.ToString();
         commissionCountText.text = levelScore.CountCommission.ToString();
         omissionCountText.text = levelScore.CountOmission.ToString();
     }
 
-    public void Initialize(int totalHit, int totalPremature, int totalCommission, int totalOmission)
+    public void Initialize(int totalHit, int totalCommission, int totalOmission)
     {
         levelText.text = "Total";
         hitCountText.text = totalHit.ToString();
-        prematureCountText.text = totalPremature.ToString();
         commissionCountText.text = totalCommission.ToString();
         omissionCountText.text = totalOmission.ToString();
     }

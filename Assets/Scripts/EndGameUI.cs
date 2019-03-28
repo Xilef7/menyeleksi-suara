@@ -44,7 +44,7 @@ public class EndGameUI : MonoBehaviour
         }
 
         GameObject totalRowInstance = Instantiate(scoreRow, scoreCalculationTransform);
-        totalRowInstance.GetComponent<ScoreRowUI>().Initialize(score.TotalHit, score.TotalPremature, score.TotalCommission, score.TotalOmission);
+        totalRowInstance.GetComponent<ScoreRowUI>().Initialize(score.TotalHit, score.TotalCommission, score.TotalOmission);
         totalRowInstance.transform.SetSiblingIndex(score.LevelScores.Length + 1);
 
         audioSource.Play();
