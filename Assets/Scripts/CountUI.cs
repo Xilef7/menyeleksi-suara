@@ -14,6 +14,7 @@ public abstract class CountUI : MonoBehaviour
     protected virtual void Awake()
     {
         text = GetComponent<Text>();
+        text.enabled = true;
 
         UpdateUI();
     }

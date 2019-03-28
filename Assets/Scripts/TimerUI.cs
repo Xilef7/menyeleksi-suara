@@ -14,6 +14,7 @@ public class TimerUI : MonoBehaviour
     void Awake()
     {
         text = GetComponent<Text>();
+        text.enabled = true;
     }
 
     void Start()
