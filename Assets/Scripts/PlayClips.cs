@@ -6,7 +6,7 @@ using UnityEngine;
 public class PlayClips : MonoBehaviour
 {
     [SerializeField] private AudioClip[] clips = null;
-    [SerializeField] private float delay = 2;
+    [SerializeField] private float delay = 2.5f;
 
     private AudioSource audioSource;
     private int i;

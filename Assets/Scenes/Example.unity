@@ -1063,6 +1063,11 @@ PrefabInstance:
       propertyPath: clips.Array.data[0]
       value: 
       objectReference: {fileID: 8300000, guid: 728b2a54938678b439d2cfa397930ec8, type: 3}
+    - target: {fileID: 5021287556048834278, guid: 3a0e0009eb827cd45a37d008657b2a6f,
+        type: 3}
+      propertyPath: delay
+      value: 2.5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3a0e0009eb827cd45a37d008657b2a6f, type: 3}
 --- !u!224 &676748929 stripped
@@ -1717,6 +1722,11 @@ PrefabInstance:
       propertyPath: clips.Array.data[1]
       value: 
       objectReference: {fileID: 8300000, guid: 728b2a54938678b439d2cfa397930ec8, type: 3}
+    - target: {fileID: 5021287556048834278, guid: 3a0e0009eb827cd45a37d008657b2a6f,
+        type: 3}
+      propertyPath: delay
+      value: 2.5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3a0e0009eb827cd45a37d008657b2a6f, type: 3}
 --- !u!224 &934717359 stripped
@@ -1859,6 +1869,11 @@ PrefabInstance:
       propertyPath: clips.Array.data[0]
       value: 
       objectReference: {fileID: 8300000, guid: 728b2a54938678b439d2cfa397930ec8, type: 3}
+    - target: {fileID: 5021287556048834278, guid: 3a0e0009eb827cd45a37d008657b2a6f,
+        type: 3}
+      propertyPath: delay
+      value: 2.5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3a0e0009eb827cd45a37d008657b2a6f, type: 3}
 --- !u!224 &1027253644 stripped
@@ -2350,6 +2365,11 @@ PrefabInstance:
       propertyPath: clips.Array.data[1]
       value: 
       objectReference: {fileID: 8300000, guid: 2732ee0d1e817644dad60ebbcf620067, type: 3}
+    - target: {fileID: 5021287556048834278, guid: 3a0e0009eb827cd45a37d008657b2a6f,
+        type: 3}
+      propertyPath: delay
+      value: 2.5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3a0e0009eb827cd45a37d008657b2a6f, type: 3}
 --- !u!224 &1464603637 stripped
