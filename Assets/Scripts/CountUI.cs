@@ -22,11 +22,13 @@ public abstract class CountUI : MonoBehaviour
     {
         gameManager = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
         gameManager.GameStarted += OnGameStarted;
+        gameManager.GameEnded += OnGameEnded;
     }
 
     protected virtual void OnDestroy()
     {
         gameManager.GameStarted -= OnGameStarted;
+        gameManager.GameEnded -= OnGameEnded;
     }
 
     protected void IncrementCount(ResponseInfo responseInfo)
@@ -48,6 +50,12 @@ public abstract class CountUI : MonoBehaviour
     {
         count = 0;
         UpdateUI();
+        text.enabled = true;
+    }
+
+    void OnGameEnded()
+    {
+        text.enabled = false;
     }
 
     void UpdateUI()

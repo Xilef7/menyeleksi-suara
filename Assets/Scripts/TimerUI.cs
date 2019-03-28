@@ -20,6 +20,7 @@ public class TimerUI : MonoBehaviour
     {
         gameManager = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
         gameManager.GameStarted += OnGameStarted;
+        gameManager.GameEnded += OnGameEnded;
 
         text.text = TimeSpan.FromSeconds(gameManager.GameDuration).ToString(@"mm\:ss");
     }
@@ -27,12 +28,19 @@ public class TimerUI : MonoBehaviour
     void OnDestroy()
     {
         gameManager.GameStarted -= OnGameStarted;
+        gameManager.GameEnded -= OnGameEnded;
     }
 
     void OnGameStarted(ReadOnlyCollection<ColorStreamOne> stream)
     {
         timeLeft = gameManager.GameDuration;
         InvokeRepeating("Tick", 0, 1);
+        text.enabled = true;
+    }
+
+    void OnGameEnded()
+    {
+        text.enabled = false;
     }
 
     void Tick()
