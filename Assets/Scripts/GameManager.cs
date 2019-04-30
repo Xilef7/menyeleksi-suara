@@ -125,7 +125,9 @@ public class GameManager : MonoBehaviour
                     .Equals("0") ? ColorStreamOne.Black : ColorStreamOne.Red)
                 .ToArray())
             .ToArray();
-        usedStreamIndex = UnityEngine.Random.Range(0, streams.Length);
+        var playCount = PlayerPrefs.GetInt("Play Count", 0);
+        usedStreamIndex = playCount % streams.Length;
+        PlayerPrefs.SetInt("Play Count", playCount + 1);
         currentLevel = 1;
         currentStimulusIndex = 0;
         currentState = State.None;
@@ -174,14 +176,14 @@ public class GameManager : MonoBehaviour
                     Hit(responseInfo);
                 }
             }
-            else if (prematureRange.Contains(now))  // If response timing falls between premature range
+            else if (prematureRange.Contains(now)) // If response timing falls between premature range
             {
                 if (Premature != null)
                 {
                     Premature(responseInfo);
                 }
             }
-            else  // If response timing falls between commission range
+            else // If response timing falls between commission range
             {
                 if (Commission != null)
                 {
@@ -191,7 +193,7 @@ public class GameManager : MonoBehaviour
 
             isPrevStimulusResponded = true;
         }
-        
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             SceneManager.LoadScene("Menu");
